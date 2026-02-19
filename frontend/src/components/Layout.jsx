@@ -19,11 +19,11 @@ import {
   Globe,
   ChevronDown,
 } from 'lucide-react';
-
+import { useLanguage } from '../contexts/LanguageContext';
 const Layout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [language, setLanguage] = useState('am');
+  const { language, toggleLanguage, t } = useLanguage();
   const [theme, setTheme] = useState('light');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -37,18 +37,14 @@ const Layout = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
     document.documentElement.classList.toggle('dark');
   };
-
-  const toggleLanguage = () => {
-    setLanguage(language === 'am' ? 'en' : 'am');
-  };
-
+  // FIXED: Added /admin prefix to all admin routes
   const navItems = [
-    { icon: Home, label: language === 'am' ? 'ዳሽቦርድ' : 'Dashboard', path: '/dashboard' },
-    { icon: FileText, label: language === 'am' ? 'ሰነዶች' : 'Documents', path: '/documents' },
-    { icon: Newspaper, label: language === 'am' ? 'ዜና' : 'News', path: '/news' },
-    { icon: Archive, label: language === 'am' ? 'አርክይቭ' : 'Archives', path: '/archives' },
-    { icon: Users, label: language === 'am' ? 'ተጠቃሚዎች' : 'Users', path: '/users' },
-    { icon: Settings, label: language === 'am' ? 'ቅንብሮች' : 'Settings', path: '/settings' },
+    { icon: Home, label: language === 'am' ? 'ዳሽቦርድ' : 'Dashboard', path: '/admin/dashboard' },
+    { icon: FileText, label: language === 'am' ? 'ሰነዶች' : 'Documents', path: '/admin/documents' },
+    { icon: Newspaper, label: language === 'am' ? 'ዜና' : 'News', path: '/admin/news' },
+    { icon: Archive, label: language === 'am' ? 'አርክይቭ' : 'Archives', path: '/admin/archives' },
+    { icon: Users, label: language === 'am' ? 'ተጠቃሚዎች' : 'Users', path: '/admin/users' },
+    { icon: Settings, label: language === 'am' ? 'ቅንብሮች' : 'Settings', path: '/admin/settings' },
   ];
 
   const translations = {
@@ -68,7 +64,6 @@ const Layout = () => {
     },
   };
 
-  const t = translations[language];
 
   return (
     <div className="min-h-screen bg-background">
@@ -145,8 +140,9 @@ const Layout = () => {
                     <p className="text-sm text-muted-foreground">{user?.email}</p>
                   </div>
                   <div className="p-2">
+                    {/* FIXED: Added /admin prefix */}
                     <Link 
-                      to="/profile" 
+                      to="/admin/profile" 
                       className="block px-3 py-2 text-sm rounded hover:bg-accent"
                       onClick={() => setUserMenuOpen(false)}
                     >

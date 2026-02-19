@@ -80,11 +80,21 @@ module.exports = (sequelize) => {
     return values;
   };
 
-  // Hooks
+  // FIXED: Check for passwordHash changes instead of password
   User.beforeSave(async (user) => {
-    if (user.changed('password')) {
-      const salt = await bcrypt.genSalt(10);
-      user.passwordHash = await bcrypt.hash(user.password, salt);
+    // Only hash if passwordHash is being set/changed directly
+    if (user.changed('passwordHash')) {
+      // We assume the passwordHash is being set with a plain text password
+      // So we need to hash it
+      const plainPassword = user.getDataValue('passwordHash');
+      
+      // Check if it's already hashed (bcrypt hashes start with $2a$, $2b$, or $2y$)
+      if (plainPassword && !plainPassword.startsWith('$2')) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(plainPassword, salt);
+        user.setDataValue('passwordHash', hashedPassword);
+        console.log('🔐 Password hashed successfully');
+      }
     }
   });
 

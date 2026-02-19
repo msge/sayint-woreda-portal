@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -17,22 +17,21 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-    const result = await login(employeeId, password);
-    
-    if (result.success) {
-      navigate('/dashboard');
-    } else {
-      setError(language === 'am' ? 'የተሳሳተ ሰራተኛ መለያ ወይም የይለፍ ቃል' : result.message);
-    }
-    
-    setLoading(false);
-  };
-
+  const result = await login(employeeId, password);
+  
+  if (result.success) {
+    navigate('/admin/dashboard', { replace: true }); // Added replace: true
+  } else {
+    setError(result.message || (language === 'am' ? 'የተሳሳተ ሰራተኛ መለያ ወይም የይለፍ ቃል' : 'Invalid credentials'));
+  }
+  
+  setLoading(false);
+};
   const toggleLanguage = () => {
     setLanguage(language === 'am' ? 'en' : 'am');
   };
@@ -46,6 +45,7 @@ const Login = () => {
       login: 'ግባ',
       loading: 'በመግባት ላይ...',
       error: 'ስህተት',
+      defaultCredentials: 'የመጀመሪያ ተጠቃሚ: SAY001 / Admin@123',
     },
     en: {
       title: 'Welcome Back',
@@ -55,6 +55,7 @@ const Login = () => {
       login: 'Login',
       loading: 'Logging in...',
       error: 'Error',
+      defaultCredentials: 'First time user: SAY001 / Admin@123',
     },
   };
 
@@ -158,16 +159,11 @@ const Login = () => {
               </Button>
             </form>
             <div className="mt-4 text-center text-sm text-gray-600">
-              <p>
+              <p className="font-medium mb-1">{t.defaultCredentials}</p>
+              <p className="text-xs">
                 {language === 'am' 
-                  ? 'የመጀመሪያ ተጠቃሚ? የሚጠቀሙት መለያ SAY001 ነው'
-                  : 'First time user? Use employee ID: SAY001'
-                }
-              </p>
-              <p>
-                {language === 'am'
-                  ? 'የይለፍ ቃል: Admin@123'
-                  : 'Password: Admin@123'
+                  ? 'ይህ መለያ ለሙከራ ብቻ ነው። ከተጠቀሙ በኋላ የይለፍ ቃልዎን ይቀይሩ።'
+                  : 'This account is for testing only. Please change password after use.'
                 }
               </p>
             </div>
