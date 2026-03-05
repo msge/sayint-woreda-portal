@@ -159,13 +159,13 @@ const NewsManagement = () => {
     }
   };
 
-  // Configure axios with auth token
-  const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
+// Configure axios with auth token
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
 
   // Fetch news from API
   const fetchNews = async () => {
@@ -810,227 +810,310 @@ const NewsManagement = () => {
         </div>
       )}
 
-      {/* Create News Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-hidden flex flex-col">
-          <DialogHeader className="flex-shrink-0">
-            <DialogTitle className="text-2xl font-amharic flex items-center gap-2">
-              <Newspaper className="h-6 w-6 text-primary" />
-              {t(translations.createDialog.title)}
-            </DialogTitle>
-            <DialogDescription>
-              {t(translations.createDialog.description)}
-            </DialogDescription>
-          </DialogHeader>
+{/* Create News Dialog - Enhanced Attractive Version */}
+<Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+  <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-hidden flex flex-col p-0">
+    {/* Custom Header with Gradient */}
+    <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex-shrink-0">
+      <DialogHeader>
+        <DialogTitle className="text-3xl font-bold text-white flex items-center gap-3">
+          <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+            <Newspaper className="h-8 w-8 text-white" />
+          </div>
+          <span className="font-amharic">{t(translations.createDialog.title)}</span>
+        </DialogTitle>
+        <DialogDescription className="text-blue-100 text-lg mt-2">
+          {t(translations.createDialog.description)}
+        </DialogDescription>
+      </DialogHeader>
+    </div>
 
-          <Tabs defaultValue="amharic" className="flex-1 overflow-hidden flex flex-col">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="amharic">አማርኛ</TabsTrigger>
-              <TabsTrigger value="english">English</TabsTrigger>
-            </TabsList>
+    {/* Animated Tabs */}
+    <Tabs defaultValue="amharic" className="flex-1 overflow-hidden flex flex-col px-6 pt-4">
+      <TabsList className="grid w-full grid-cols-2 p-1 bg-gray-100 rounded-xl">
+        <TabsTrigger 
+          value="amharic" 
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-700 data-[state=active]:text-white rounded-lg py-3 transition-all duration-300 font-amharic text-lg"
+        >
+          <span className="mr-2">🇪🇹</span> አማርኛ
+        </TabsTrigger>
+        <TabsTrigger 
+          value="english" 
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-purple-700 data-[state=active]:text-white rounded-lg py-3 transition-all duration-300 text-lg"
+        >
+          <span className="mr-2">🇬🇧</span> English
+        </TabsTrigger>
+      </TabsList>
 
-            <div className="flex-1 overflow-y-auto pr-2 mt-4 space-y-4">
-              {/* Amharic Tab */}
-              <TabsContent value="amharic" className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-1">
-                    {t(translations.createDialog.headlineAm)}
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    value={formData.headlineAm}
-                    onChange={(e) => setFormData({...formData, headlineAm: e.target.value})}
-                    placeholder="የዜና አርዕስት"
-                    className="font-amharic"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-1">
-                    {t(translations.createDialog.contentAm)}
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="border rounded-md">
-                    <ReactQuill
-                      theme="snow"
-                      value={formData.contentAm}
-                      onChange={(content) => setFormData({...formData, contentAm: content})}
-                      modules={quillModules}
-                      className="h-64"
-                      placeholder="የዜና ይዘት..."
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* English Tab */}
-              <TabsContent value="english" className="space-y-4">
-                <div className="space-y-2">
-                  <Label>{t(translations.createDialog.headlineEn)}</Label>
-                  <Input
-                    value={formData.headlineEn}
-                    onChange={(e) => setFormData({...formData, headlineEn: e.target.value})}
-                    placeholder="News headline"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>{t(translations.createDialog.contentEn)}</Label>
-                  <div className="border rounded-md">
-                    <ReactQuill
-                      theme="snow"
-                      value={formData.contentEn}
-                      onChange={(content) => setFormData({...formData, contentEn: content})}
-                      modules={quillModules}
-                      className="h-64"
-                      placeholder="News content..."
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* Common Fields */}
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                <div className="space-y-2">
-                  <Label>{t(translations.createDialog.category)}</Label>
-                  <Select 
-                    value={formData.category} 
-                    onValueChange={(v) => setFormData({...formData, category: v})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="announcement">Announcement</SelectItem>
-                      <SelectItem value="event">Event</SelectItem>
-                      <SelectItem value="achievement">Achievement</SelectItem>
-                      <SelectItem value="general">General</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>{t(translations.createDialog.featuredImage)}</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageSelect}
-                      className="hidden"
-                      id="image-upload"
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => document.getElementById('image-upload').click()}
-                      className="w-full"
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Choose Image
-                    </Button>
-                  </div>
-                </div>
+      <div className="flex-1 overflow-y-auto pr-2 mt-6 space-y-6 pb-6">
+        {/* Amharic Tab */}
+        <TabsContent value="amharic" className="space-y-6 mt-0">
+          {/* Headline Card */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200 shadow-sm">
+            <Label className="text-blue-800 font-bold text-lg flex items-center gap-2 mb-3">
+              <div className="bg-blue-500 p-2 rounded-lg">
+                <Tag className="h-4 w-4 text-white" />
               </div>
+              {t(translations.createDialog.headlineAm)}
+              <span className="text-red-500 text-sm ml-2">*</span>
+            </Label>
+            <Input
+              value={formData.headlineAm}
+              onChange={(e) => setFormData({...formData, headlineAm: e.target.value})}
+              placeholder="የዜና አርዕስት ይጻፉ..."
+              className="font-amharic text-lg border-2 border-blue-200 focus:border-blue-500 rounded-xl p-4 h-14 bg-white/80 backdrop-blur-sm"
+            />
+          </div>
 
-              {/* Image Preview */}
-              {imagePreview && (
-                <div className="relative w-full h-32 rounded-lg overflow-hidden border">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="w-full h-full object-cover"
-                  />
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-2 right-2 h-6 w-6"
-                    onClick={() => {
-                      setImagePreview(null);
-                      setFormData({...formData, featuredImage: null});
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-
-              {/* Tags */}
-              <div className="space-y-2">
-                <Label>{t(translations.createDialog.tags)}</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={formData.tagInput}
-                    onChange={(e) => setFormData({...formData, tagInput: e.target.value})}
-                    placeholder="Enter tag and press Add"
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-                  />
-                  <Button onClick={handleAddTag} variant="outline">
-                    <Plus className="h-4 w-4 mr-2" />
-                    {t(translations.createDialog.addTag)}
-                  </Button>
-                </div>
-                {formData.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.tags.map((tag, index) => (
-                      <Badge key={index} variant="secondary" className="gap-1">
-                        <Hash className="h-3 w-3" />
-                        {tag}
-                        <button
-                          onClick={() => handleRemoveTag(tag)}
-                          className="ml-1 hover:text-destructive"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
+          {/* Content Card */}
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200 shadow-sm">
+            <Label className="text-purple-800 font-bold text-lg flex items-center gap-2 mb-3">
+              <div className="bg-purple-500 p-2 rounded-lg">
+                <Newspaper className="h-4 w-4 text-white" />
               </div>
-
-              {/* Upload Progress */}
-              {uploadProgress > 0 && uploadProgress < 100 && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Uploading...</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-primary rounded-full h-2 transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
+              {t(translations.createDialog.contentAm)}
+              <span className="text-red-500 text-sm ml-2">*</span>
+            </Label>
+            <div className="border-2 border-purple-200 rounded-xl overflow-hidden bg-white">
+              <ReactQuill
+                theme="snow"
+                value={formData.contentAm}
+                onChange={(content) => setFormData({...formData, contentAm: content})}
+                modules={quillModules}
+                className="h-80"
+                placeholder="የዜና ይዘት እዚህ ይጻፉ..."
+              />
             </div>
-          </Tabs>
+          </div>
+        </TabsContent>
 
-          <DialogFooter className="flex-shrink-0 gap-2 mt-4 pt-4 border-t">
-            <Button variant="outline" onClick={() => {
-              setIsCreateDialogOpen(false);
-              resetForm();
-            }}>
-              {t(translations.createDialog.cancel)}
-            </Button>
+        {/* English Tab */}
+        <TabsContent value="english" className="space-y-6 mt-0">
+          {/* Headline Card */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200 shadow-sm">
+            <Label className="text-green-800 font-bold text-lg flex items-center gap-2 mb-3">
+              <div className="bg-green-500 p-2 rounded-lg">
+                <Tag className="h-4 w-4 text-white" />
+              </div>
+              {t(translations.createDialog.headlineEn)}
+            </Label>
+            <Input
+              value={formData.headlineEn}
+              onChange={(e) => setFormData({...formData, headlineEn: e.target.value})}
+              placeholder="Enter news headline..."
+              className="text-lg border-2 border-green-200 focus:border-green-500 rounded-xl p-4 h-14 bg-white/80 backdrop-blur-sm"
+            />
+          </div>
+
+          {/* Content Card */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200 shadow-sm">
+            <Label className="text-amber-800 font-bold text-lg flex items-center gap-2 mb-3">
+              <div className="bg-amber-500 p-2 rounded-lg">
+                <Newspaper className="h-4 w-4 text-white" />
+              </div>
+              {t(translations.createDialog.contentEn)}
+            </Label>
+            <div className="border-2 border-amber-200 rounded-xl overflow-hidden bg-white">
+              <ReactQuill
+                theme="snow"
+                value={formData.contentEn}
+                onChange={(content) => setFormData({...formData, contentEn: content})}
+                modules={quillModules}
+                className="h-80"
+                placeholder="Write news content here..."
+              />
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Common Fields - Beautiful Grid */}
+        <div className="grid grid-cols-3 gap-6 pt-6">
+          {/* Category Selection */}
+          <div className="bg-gradient-to-br from-cyan-50 to-teal-50 p-6 rounded-xl border border-cyan-200 shadow-sm">
+            <Label className="text-cyan-800 font-bold text-md flex items-center gap-2 mb-3">
+              <div className="bg-cyan-500 p-2 rounded-lg">
+                <Tag className="h-4 w-4 text-white" />
+              </div>
+              {t(translations.createDialog.category)}
+            </Label>
+            <Select 
+              value={formData.category} 
+              onValueChange={(v) => setFormData({...formData, category: v})}
+            >
+              <SelectTrigger className="border-2 border-cyan-200 rounded-xl p-6 bg-white/80">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="announcement">📢 Announcement</SelectItem>
+                <SelectItem value="event">🎉 Event</SelectItem>
+                <SelectItem value="achievement">🏆 Achievement</SelectItem>
+                <SelectItem value="general">📰 General</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Featured Image Upload */}
+          <div className="bg-gradient-to-br from-rose-50 to-pink-50 p-6 rounded-xl border border-rose-200 shadow-sm">
+            <Label className="text-rose-800 font-bold text-md flex items-center gap-2 mb-3">
+              <div className="bg-rose-500 p-2 rounded-lg">
+                <Image className="h-4 w-4 text-white" />
+              </div>
+              {t(translations.createDialog.featuredImage)}
+            </Label>
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+                id="image-upload-enhanced"
+              />
+              <label
+                htmlFor="image-upload-enhanced"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-rose-200 rounded-xl cursor-pointer hover:border-rose-500 hover:bg-rose-50/50 transition-all duration-300 group"
+              >
+                <Upload className="h-8 w-8 text-rose-400 group-hover:text-rose-500 group-hover:scale-110 transition-all duration-300" />
+                <span className="text-sm text-rose-600 mt-2">Click to upload</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Image Preview */}
+          <div className="bg-gradient-to-br from-violet-50 to-purple-50 p-6 rounded-xl border border-violet-200 shadow-sm">
+            <Label className="text-violet-800 font-bold text-md flex items-center gap-2 mb-3">
+              <div className="bg-violet-500 p-2 rounded-lg">
+                <Eye className="h-4 w-4 text-white" />
+              </div>
+              Preview
+            </Label>
+            {imagePreview ? (
+              <div className="relative w-full h-32 rounded-xl overflow-hidden border-2 border-violet-200 group">
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  onClick={() => {
+                    setImagePreview(null);
+                    setFormData({...formData, featuredImage: null});
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-red-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="w-full h-32 bg-gradient-to-br from-violet-100 to-purple-100 rounded-xl flex items-center justify-center border-2 border-dashed border-violet-200">
+                <span className="text-violet-400">No image selected</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Tags Section */}
+        <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-200 shadow-sm">
+          <Label className="text-indigo-800 font-bold text-lg flex items-center gap-2 mb-3">
+            <div className="bg-indigo-500 p-2 rounded-lg">
+              <Hash className="h-4 w-4 text-white" />
+            </div>
+            {t(translations.createDialog.tags)}
+          </Label>
+          <div className="flex gap-3">
+            <Input
+              value={formData.tagInput}
+              onChange={(e) => setFormData({...formData, tagInput: e.target.value})}
+              placeholder="Enter a tag (e.g., technology, education, health)"
+              className="flex-1 border-2 border-indigo-200 focus:border-indigo-500 rounded-xl p-4 h-12"
+              onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+            />
             <Button 
+              onClick={handleAddTag} 
               variant="outline"
-              onClick={() => handleCreateNews(false)}
-              disabled={!formData.headlineAm || !formData.contentAm}
+              className="border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl px-6 transition-all duration-300"
             >
-              <Clock className="h-4 w-4 mr-2" />
-              {t(translations.createDialog.saveDraft)}
+              <Plus className="h-5 w-5 mr-2" />
+              {t(translations.createDialog.addTag)}
             </Button>
-            <Button 
-              onClick={() => handleCreateNews(true)}
-              disabled={!formData.headlineAm || !formData.contentAm}
-              className="gap-2"
-            >
-              <Send className="h-4 w-4" />
-              {t(translations.createDialog.publish)}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+          
+          {/* Tags Display */}
+          {formData.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4 p-4 bg-white/50 rounded-xl border border-indigo-100">
+              {formData.tags.map((tag, index) => (
+                <Badge 
+                  key={index} 
+                  className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300 group"
+                >
+                  <Hash className="h-3 w-3 mr-1" />
+                  {tag}
+                  <button
+                    onClick={() => handleRemoveTag(tag)}
+                    className="ml-2 hover:text-red-200 transition-colors duration-200"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
 
+        {/* Upload Progress */}
+        {uploadProgress > 0 && uploadProgress < 100 && (
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
+            <div className="flex justify-between text-sm text-green-700 mb-2">
+              <span className="font-medium">📤 Uploading...</span>
+              <span className="font-bold">{uploadProgress}%</span>
+            </div>
+            <div className="w-full bg-green-200 rounded-full h-3 overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-300 relative"
+                style={{ width: `${uploadProgress}%` }}
+              >
+                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </Tabs>
+
+    {/* Action Buttons - Glassmorphism Style */}
+    <DialogFooter className="flex-shrink-0 gap-3 mt-4 pt-4 border-t border-gray-200 bg-white/50 backdrop-blur-sm p-6">
+      <Button 
+        variant="outline" 
+        onClick={() => {
+          setIsCreateDialogOpen(false);
+          resetForm();
+        }}
+        className="border-2 border-gray-300 hover:border-gray-400 rounded-xl px-8 py-6 text-gray-700 font-medium transition-all duration-300 hover:shadow-md"
+      >
+        <X className="h-5 w-5 mr-2" />
+        {t(translations.createDialog.cancel)}
+      </Button>
+      
+      <Button 
+        variant="outline"
+        onClick={() => handleCreateNews(false)}
+        disabled={!formData.headlineAm || !formData.contentAm}
+        className="border-2 border-amber-300 hover:border-amber-500 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl px-8 py-6 text-amber-700 font-medium transition-all duration-300 hover:shadow-md disabled:opacity-50"
+      >
+        <Clock className="h-5 w-5 mr-2" />
+        {t(translations.createDialog.saveDraft)}
+      </Button>
+      
+      <Button 
+        onClick={() => handleCreateNews(true)}
+        disabled={!formData.headlineAm || !formData.contentAm}
+        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl px-10 py-6 text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+      >
+        <Send className="h-5 w-5 mr-2" />
+        {t(translations.createDialog.publish)}
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
       {/* View News Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
@@ -1116,7 +1199,122 @@ const NewsManagement = () => {
           )}
         </DialogContent>
       </Dialog>
+{/* Edit News Dialog */}
+<Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+  <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-hidden flex flex-col">
+    <DialogHeader>
+      <DialogTitle className="text-2xl font-amharic">Edit News Article</DialogTitle>
+      <DialogDescription>
+        Update the news article information
+      </DialogDescription>
+    </DialogHeader>
 
+    <Tabs defaultValue="amharic" className="flex-1 overflow-hidden flex flex-col">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="amharic">አማርኛ</TabsTrigger>
+        <TabsTrigger value="english">English</TabsTrigger>
+      </TabsList>
+
+      <div className="flex-1 overflow-y-auto pr-2 mt-4 space-y-4">
+        <TabsContent value="amharic" className="space-y-4">
+          <div className="space-y-2">
+            <Label>Headline (Amharic)</Label>
+            <Input
+              value={formData.headlineAm}
+              onChange={(e) => setFormData({...formData, headlineAm: e.target.value})}
+              className="font-amharic"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Content (Amharic)</Label>
+            <div className="border rounded-md">
+              <ReactQuill
+                theme="snow"
+                value={formData.contentAm}
+                onChange={(content) => setFormData({...formData, contentAm: content})}
+                modules={quillModules}
+                className="h-64"
+              />
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="english" className="space-y-4">
+          <div className="space-y-2">
+            <Label>Headline (English)</Label>
+            <Input
+              value={formData.headlineEn}
+              onChange={(e) => setFormData({...formData, headlineEn: e.target.value})}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Content (English)</Label>
+            <div className="border rounded-md">
+              <ReactQuill
+                theme="snow"
+                value={formData.contentEn}
+                onChange={(content) => setFormData({...formData, contentEn: content})}
+                modules={quillModules}
+                className="h-64"
+              />
+            </div>
+          </div>
+        </TabsContent>
+
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+          <div className="space-y-2">
+            <Label>Category</Label>
+            <Select value={formData.category} onValueChange={(v) => setFormData({...formData, category: v})}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="announcement">Announcement</SelectItem>
+                <SelectItem value="event">Event</SelectItem>
+                <SelectItem value="achievement">Achievement</SelectItem>
+                <SelectItem value="general">General</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <div className="flex gap-2">
+              <Input
+                value={formData.tagInput}
+                onChange={(e) => setFormData({...formData, tagInput: e.target.value})}
+                placeholder="Add tag"
+                onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+              />
+              <Button onClick={handleAddTag} variant="outline">Add</Button>
+            </div>
+            {formData.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="gap-1">
+                    {tag}
+                    <button onClick={() => handleRemoveTag(tag)} className="ml-1">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Tabs>
+
+    <DialogFooter className="mt-4 pt-4 border-t">
+      <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+        Cancel
+      </Button>
+      <Button onClick={handleUpdateNews}>
+        Save Changes
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">

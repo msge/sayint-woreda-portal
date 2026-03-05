@@ -47,7 +47,7 @@ const Dashboard = () => {
 
   const recentActivities = [
     { 
-      user: 'ሚኪኤል አለማየሁ', 
+      user: 'ንጉስ ', 
       action: t(dict.recentActivities.actions.addedDocument), 
       time: '2 ደቂቃ በፊት',
       type: 'document' 

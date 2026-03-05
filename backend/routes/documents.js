@@ -343,7 +343,116 @@ router.put('/:id', auth.protect, auth.restrictTo('super_admin', 'admin', 'editor
     });
   }
 });
-
+ // @route   POST /api/documents/upload
+// @desc    Upload a document
+// @access  Private (Editor+)
+router.post(
+  '/upload',
+  auth.protect,
+  auth.restrictTo('super_admin', 'admin', 'editor'),
+  upload.single('file'),
+  [
+    body('titleAm').notEmpty().withMessage('Amharic title is required'),
+    body('category').isIn([
+      'historical_record',
+      'government_notice',
+      'news',
+      'biography',
+      'administrative',
+      'cultural_heritage',
+      'form_template'
+    ]),
+    body('accessLevel').isIn(['public', 'restricted', 'confidential']),
+    body('language').isIn(['am', 'en', 'both']),
+  ],
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'No file uploaded',
+        });
+      }
+      
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      
+      // Process uploaded file
+      const fileInfo = await processUpload(req.file);
+      
+      // Generate unique document ID
+      const { Op } = require('sequelize');
+      const year = new Date().getFullYear();
+      const count = await Document.count({
+        where: {
+          createdAt: {
+            [Op.gte]: new Date(`${year}-01-01`),
+            [Op.lt]: new Date(`${year + 1}-01-01`),
+          }
+        }
+      });
+      const docId = `SAY/DOC/${year}/${String(count + 1).padStart(4, '0')}`;
+      
+      // Parse keywords if they come as JSON string
+      let keywords = [];
+      if (req.body.keywords) {
+        try {
+          keywords = JSON.parse(req.body.keywords);
+        } catch (e) {
+          keywords = req.body.keywords.split(',').map(k => k.trim());
+        }
+      }
+      
+      // Create document record
+      const document = await Document.create({
+        docId,
+        titleAm: req.body.titleAm,
+        titleEn: req.body.titleEn || null,
+        descriptionAm: req.body.descriptionAm || null,
+        descriptionEn: req.body.descriptionEn || null,
+        category: req.body.category,
+        documentType: req.body.documentType || path.extname(req.file.originalname).substring(1).toLowerCase(),
+        filePath: fileInfo.filePath,
+        fileSize: fileInfo.fileSize,
+        thumbnailPath: fileInfo.thumbnailPath,
+        metadata: {
+          originalName: fileInfo.originalName,
+          mimeType: fileInfo.mimeType,
+        },
+        language: req.body.language,
+        keywords: keywords,
+        accessLevel: req.body.accessLevel,
+        uploadedBy: req.user.id,
+      });
+      
+      // Create first version
+      await DocumentVersion.create({
+        documentId: document.id,
+        version: 1,
+        filePath: fileInfo.filePath,
+        changes: 'Initial upload',
+        approvedBy: req.user.id,
+        approvalDate: new Date(),
+      });
+      
+      res.status(201).json({
+        status: 'success',
+        data: {
+          document,
+        },
+      });
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      console.error('Error stack:', error.stack);
+      res.status(500).json({
+        status: 'error',
+        message: error.message || 'Error uploading document',
+      });
+    }
+  }
+);
 // @route   DELETE /api/documents/:id
 // @desc    Delete/archive document
 // @access  Private (Admin+)

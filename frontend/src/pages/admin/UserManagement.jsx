@@ -159,13 +159,13 @@ const UserManagement = () => {
     }
   };
 
-  // Configure axios with auth token
-  const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
+// Configure axios with auth token
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
 
   // Fetch users from API
 // Fetch users from API
@@ -454,7 +454,7 @@ const handleAddUser = async () => {
     const samples = [
       {
         'Employee ID': 'SAY002',
-        'Full Name (Amharic)': 'አቶ ሚኪኤል አለማየሁ',
+        'Full Name (Amharic)': 'አቶ ንጉስ አለማየሁ',
         'Full Name (English)': 'Mikiyal Alemayehu',
         'Email': 'mikiyal@sayintworeda.gov.et',
         'Phone': '+251911234568',

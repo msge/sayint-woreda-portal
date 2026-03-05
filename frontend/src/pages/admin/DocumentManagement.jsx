@@ -51,7 +51,6 @@ const DocumentManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalDocuments, setTotalDocuments] = useState(0);
-  
   // Dialog states
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -165,14 +164,13 @@ const DocumentManagement = () => {
     }
   };
 
-  // Configure axios with auth token
-  const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
 
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
   // Fetch documents from API
   const fetchDocuments = async () => {
     setLoading(true);
@@ -358,7 +356,43 @@ const DocumentManagement = () => {
       });
     }
   };
+// Edit document
+const handleEditDocument = async () => {
+  if (!selectedDocument) return;
 
+  try {
+    const updateData = {
+      titleAm: formData.titleAm,
+      titleEn: formData.titleEn,
+      descriptionAm: formData.descriptionAm,
+      descriptionEn: formData.descriptionEn,
+      category: formData.category,
+      language: formData.language,
+      accessLevel: formData.accessLevel,
+      keywords: formData.keywords
+    };
+
+    const response = await api.put(`/documents/${selectedDocument.id}`, updateData);
+
+    if (response.data.status === 'success') {
+      toast({
+        title: 'Document Updated',
+        description: `${formData.titleAm} has been updated`,
+      });
+      
+      setIsEditDialogOpen(false);
+      resetForm();
+      fetchDocuments();
+    }
+  } catch (error) {
+    console.error('Error updating document:', error);
+    toast({
+      title: t(translations.toast.error),
+      description: error.response?.data?.message || 'Failed to update document',
+      variant: 'destructive'
+    });
+  }
+};
   // Toggle archive status
   const handleToggleArchive = async (document) => {
     try {
@@ -668,12 +702,23 @@ const DocumentManagement = () => {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem onClick={() => {
-                              setSelectedDocument(doc);
-                              // Open edit dialog
-                            }}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
+  setSelectedDocument(doc);
+  setFormData({
+    titleAm: doc.titleAm,
+    titleEn: doc.titleEn || '',
+    descriptionAm: doc.descriptionAm || '',
+    descriptionEn: doc.descriptionEn || '',
+    category: doc.category,
+    language: doc.language,
+    keywords: doc.keywords ? doc.keywords.join(', ') : '',
+    accessLevel: doc.accessLevel,
+    documentType: doc.documentType
+  });
+  setIsEditDialogOpen(true);
+}}>
+  <Edit className="h-4 w-4 mr-2" />
+  Edit
+</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleToggleArchive(doc)}>
                               {doc.archived ? (
                                 <>
@@ -1054,7 +1099,121 @@ const DocumentManagement = () => {
           )}
         </DialogContent>
       </Dialog>
+{/* Edit Document Dialog */}
+<Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+  <DialogContent className="sm:max-w-[600px]">
+    <DialogHeader>
+      <DialogTitle>Edit Document Metadata</DialogTitle>
+      <DialogDescription>
+        Update document information
+      </DialogDescription>
+    </DialogHeader>
+    <div className="grid gap-4 py-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Title (Amharic)</Label>
+          <Input
+            value={formData.titleAm}
+            onChange={(e) => setFormData({...formData, titleAm: e.target.value})}
+            className="font-amharic"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Title (English)</Label>
+          <Input
+            value={formData.titleEn}
+            onChange={(e) => setFormData({...formData, titleEn: e.target.value})}
+          />
+        </div>
+      </div>
 
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Description (Amharic)</Label>
+          <Textarea
+            value={formData.descriptionAm}
+            onChange={(e) => setFormData({...formData, descriptionAm: e.target.value})}
+            className="font-amharic"
+            rows={3}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Description (English)</Label>
+          <Textarea
+            value={formData.descriptionEn}
+            onChange={(e) => setFormData({...formData, descriptionEn: e.target.value})}
+            rows={3}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label>Category</Label>
+          <Select value={formData.category} onValueChange={(v) => setFormData({...formData, category: v})}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="historical_record">Historical Record</SelectItem>
+              <SelectItem value="government_notice">Government Notice</SelectItem>
+              <SelectItem value="news">News</SelectItem>
+              <SelectItem value="biography">Biography</SelectItem>
+              <SelectItem value="administrative">Administrative</SelectItem>
+              <SelectItem value="cultural_heritage">Cultural Heritage</SelectItem>
+              <SelectItem value="form_template">Form Template</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Language</Label>
+          <Select value={formData.language} onValueChange={(v) => setFormData({...formData, language: v})}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="am">አማርኛ</SelectItem>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="both">Both</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Access Level</Label>
+          <Select value={formData.accessLevel} onValueChange={(v) => setFormData({...formData, accessLevel: v})}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="public">Public</SelectItem>
+              <SelectItem value="restricted">Restricted</SelectItem>
+              <SelectItem value="confidential">Confidential</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Keywords (comma separated)</Label>
+        <Input
+          value={formData.keywords}
+          onChange={(e) => setFormData({...formData, keywords: e.target.value})}
+          placeholder="report, annual, 2024, budget"
+        />
+      </div>
+    </div>
+    <DialogFooter>
+      <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+        Cancel
+      </Button>
+      <Button onClick={handleEditDocument}>
+        Save Changes
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">

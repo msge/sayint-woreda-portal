@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, Op } = require('sequelize'); // Add Op here
 
 module.exports = (sequelize) => {
   const Document = sequelize.define('Document', {
@@ -60,7 +60,7 @@ module.exports = (sequelize) => {
       defaultValue: 'am',
     },
     keywords: {
-      type: DataTypes.TEXT, // Will store as JSON string
+      type: DataTypes.TEXT,
       defaultValue: '[]',
       get() {
         const rawValue = this.getDataValue('keywords');
@@ -97,21 +97,23 @@ module.exports = (sequelize) => {
       { fields: ['accessLevel'] },
       { fields: ['publishedAt'] },
     ],
-  });
-
-  // Before create hook to generate docId
-  Document.beforeCreate(async (document) => {
-    if (!document.docId) {
-      const year = new Date().getFullYear();
-      const count = await Document.count({
-        where: {
-          createdAt: {
-            [sequelize.Op.gte]: new Date(`${year}-01-01`),
-            [sequelize.Op.lt]: new Date(`${year + 1}-01-01`),
-          }
+    hooks: {
+      beforeValidate: async (document) => {
+        // Generate docId BEFORE validation
+        if (!document.docId) {
+          const year = new Date().getFullYear();
+          const count = await Document.count({
+            where: {
+              createdAt: {
+                [Op.gte]: new Date(`${year}-01-01`),
+                [Op.lt]: new Date(`${year + 1}-01-01`),
+              }
+            }
+          });
+          document.docId = `SAY/DOC/${year}/${String(count + 1).padStart(4, '0')}`;
+          console.log('Generated docId:', document.docId); // Debug log
         }
-      });
-      document.docId = `SAY/DOC/${year}/${String(count + 1).padStart(4, '0')}`;
+      }
     }
   });
 
