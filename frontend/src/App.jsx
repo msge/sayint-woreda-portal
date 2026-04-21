@@ -7,13 +7,13 @@ import DocumentManagement from './pages/admin/DocumentManagement';
 import NewsManagement from './pages/admin/NewsManagement';
 // Public Pages
 import PublicLayout from './layouts/PublicLayout';
-import Home from './pages/public/Home';
-import News from './pages/public/News';
-import Blogs from './pages/public/Blogs';
-import About from './pages/public/About';
-import Contact from './pages/public/Contact';
-import Resources from './pages/public/Resources';
-import Documents from './pages/public/Documents';
+import Home from './pages/site/Home';
+import News from './pages/site/News';
+import About from './pages/site/About';
+import Services from './pages/site/Services';
+import Contact from './pages/site/Contact';
+import Documents from './pages/site/Documents';
+import MediaGallery from './pages/site/MediaGallery';
 import UserManagement from './pages/admin/UserManagement';
 // Admin/Protected Pages
 import Login from './pages/Login';
@@ -68,10 +68,10 @@ function App() {
             <Route path="/" element={<PublicLayout />}>
               <Route index element={<Home />} />
               <Route path="news" element={<News />} />
-              <Route path="blogs" element={<Blogs />} />
               <Route path="about" element={<About />} />
+              <Route path="services" element={<Services />} />
+              <Route path="media" element={<MediaGallery />} />
               <Route path="contact" element={<Contact />} />
-              <Route path="resources" element={<Resources />} />
               <Route path="documents" element={<Documents />} />
             </Route>
 
