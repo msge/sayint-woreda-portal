@@ -70,6 +70,7 @@ app.use('/api/documents', require('./routes/documents'));
 app.use('/api/news', require('./routes/news'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/historical-records', require('./routes/historicalRecords'));
+app.use('/api/contact', require('./routes/contact'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

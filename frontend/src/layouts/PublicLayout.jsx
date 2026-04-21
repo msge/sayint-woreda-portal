@@ -94,10 +94,10 @@ const PublicLayout = () => {
       description: { am: 'የቅርብ ጊዜ ዜናዎች', en: 'Latest news and updates' }
     },
     { 
-      icon: BookOpen, 
-      label: { am: 'ብሎጎች', en: 'Blogs' }, 
-      path: '/blogs',
-      description: { am: 'ጽሑፎች እና ብሎጎች', en: 'Articles and blog posts' }
+      icon: Building, 
+      label: { am: 'አገልግሎቶች', en: 'Services' }, 
+      path: '/services',
+      description: { am: 'የመንግስት የኮሙኒኬሽን አገልግሎቶች', en: 'Government communication services' }
     },
     { 
       icon: FileText, 
@@ -106,10 +106,10 @@ const PublicLayout = () => {
       description: { am: 'መደበኛ ሰነዶች እና ፎርሞች', en: 'Official documents and forms' }
     },
     { 
-      icon: Shield, 
-      label: { am: 'ሀብቶች', en: 'Resources' }, 
-      path: '/resources',
-      description: { am: 'ማህበረሰብ ሀብቶች', en: 'Community resources' }
+      icon: BookOpen, 
+      label: { am: 'ሚዲያ ጋለሪ', en: 'Media Gallery' }, 
+      path: '/media',
+      description: { am: 'ፎቶዎች እና ቪዲዮዎች', en: 'Photos and videos' }
     },
     { 
       icon: Info, 
